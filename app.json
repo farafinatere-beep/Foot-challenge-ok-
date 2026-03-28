@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Foot Challenge",
-    "slug": "foot-challenge",
+    "slug": "foot-challenge-ok",
     "version": "1.0.0",
     "orientation": "portrait",
     "android": {
@@ -10,6 +10,11 @@
     },
     "splash": {
       "backgroundColor": "#06080f"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "foot-challenge-ok"
+      }
     }
   }
 }
