@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Foot Challenge",
+    "slug": "foot-challenge",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "android": {
+      "package": "com.farafinatere.footchallenge",
+      "versionCode": 1
+    },
+    "splash": {
+      "backgroundColor": "#06080f"
+    }
+  }
+}
