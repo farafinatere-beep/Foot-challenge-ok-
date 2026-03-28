@@ -10,11 +10,6 @@
     },
     "splash": {
       "backgroundColor": "#06080f"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "foot-challenge-ok"
-      }
     }
   }
 }
