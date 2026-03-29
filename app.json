@@ -4,9 +4,14 @@
     "slug": "foot-challenge-ok",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./icon.png",
     "android": {
       "package": "com.farafinatere.footchallenge",
-      "versionCode": 1
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./icon.png",
+        "backgroundColor": "#f59e0b"
+      }
     },
     "splash": {
       "backgroundColor": "#06080f"
