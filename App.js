@@ -4,7 +4,6 @@ import { Audio } from 'expo-av';
 
 const { width } = Dimensions.get('window');
 
-// SONS LIBRES DE DROITS
 const SOUNDS = {
   correct: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3',
   wrong:   'https://assets.mixkit.co/active_storage/sfx/2001/2001-preview.mp3',
@@ -89,8 +88,6 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [soundOn, setSoundOn] = useState(true);
   const [musicOn, setMusicOn] = useState(true);
-
-  // SOLO
   const [questions, setQuestions] = useState([]);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -102,8 +99,6 @@ export default function App() {
   const [correct, setCorrect] = useState(0);
   const [totalXP, setTotalXP] = useState(350);
   const [sessionXP, setSessionXP] = useState(0);
-
-  // TOUR PAR TOUR
   const [player1Name, setPlayer1Name] = useState('Joueur 1');
   const [player2Name, setPlayer2Name] = useState('Joueur 2');
   const [tptPhase, setTptPhase] = useState(1);
@@ -128,11 +123,10 @@ export default function App() {
   useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
   useEffect(() => { musicOnRef.current = musicOn; }, [musicOn]);
 
-  // MUSIQUE DE FOND
   useEffect(() => {
     let music;
     async function playMusic() {
-      if (!musicOn) return;
+      if (!musicOnRef.current) return;
       try {
         await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
         const { sound } = await Audio.Sound.createAsync(
@@ -141,7 +135,7 @@ export default function App() {
         );
         music = sound;
         musicRef.current = sound;
-        if (musicOnRef.current) await sound.playAsync();
+        await sound.playAsync();
       } catch (e) {}
     }
     if (screen === 'game' || screen === 'tpt') playMusic();
@@ -164,7 +158,6 @@ export default function App() {
     } catch (e) {}
   }
 
-  // TIMERS
   useEffect(() => {
     if (screen==='game' && !answered) {
       timerRef.current = setInterval(() => {
@@ -228,7 +221,7 @@ export default function App() {
     setTimeout(() => {
       if (current+1>=questions.length) {
         setTotalXP(p=>p+sessionXP+xpGain);
-        if (correct+1>=5) playSound('win'); else playSound('lose');
+        if ((correct+(ok?1:0))>=5) playSound('win'); else playSound('lose');
         setScreen('result');
       } else {
         setCurrent(c=>c+1); setSelected(null); setAnswered(false); setTimeLeft(15);
@@ -305,10 +298,10 @@ export default function App() {
     xfil:{height:'100%',borderRadius:3},
     lrow:{flexDirection:'row',alignItems:'center',backgroundColor:'rgba(255,255,255,0.02)',borderLeftWidth:4,borderLeftColor:'rgba(255,255,255,0.05)',borderTopWidth:1,borderRightWidth:1,borderBottomWidth:1,borderTopColor:'rgba(255,255,255,0.05)',borderRightColor:'rgba(255,255,255,0.05)',borderBottomColor:'rgba(255,255,255,0.05)',borderRadius:8,padding:13,marginBottom:8},
     input:{backgroundColor:'rgba(255,255,255,0.06)',borderRadius:8,padding:14,color:'#fff',fontSize:16,fontWeight:'700',marginBottom:12,borderWidth:1,borderColor:'rgba(255,255,255,0.15)'},
-    toggleRow:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',backgroundColor:'rgba(255,255,255,0.03)',borderRadius:10,padding:16,marginBottom:10},
+    toggleRow:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',backgroundColor:'rgba(255,255,255,0.03)',borderRadius:10,padding:14,marginBottom:8},
   });
 
-  // SETUP TOUR PAR TOUR
+  // SETUP TPT
   if (screen==='tptsetup') return (
     <View style={[S.con,{padding:20,justifyContent:'center'}]}>
       <StatusBar barStyle="light-content" backgroundColor={BG}/>
@@ -321,4 +314,5 @@ export default function App() {
       <TouchableOpacity style={[S.pbtn,{marginTop:10}]} onPress={startTpt}>
         <Text style={S.ptxt}>LANCER LE DUEL</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={S.gbtn} onPress={()=
+      <TouchableOpacity style={S.gbtn} onPress={()=>setScreen('home')}>
+        <Text style={{fontSize:14,fontWeight:'900',color:'#94a3b8',letterSpacing:2}
