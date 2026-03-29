@@ -129,10 +129,10 @@ export default function App() {
 
   function getGrade() {
     const p=correct/questions.length;
-    if(p>=0.9) return {label:'LEGENDAIRE',color:'#f59e0b'};
-    if(p>=0.75) return {label:'EXPERT',color:'#10b981'};
-    if(p>=0.5) return {label:'BON JOUEUR',color:'#3b82f6'};
-    return {label:'EN PROGRESSION',color:'#f43f5e'};
+    if(p>=0.9) return {label:'LEGENDAIRE',color:'#f59e0b',passed:true};
+    if(p>=0.75) return {label:'EXPERT',color:'#10b981',passed:true};
+    if(p>=0.5) return {label:'BON JOUEUR',color:'#3b82f6',passed:true};
+    return {label:'NIVEAU RATE - RECOMMENCE',color:'#f43f5e',passed:false};
   }
 
   const curLv=getLevel(totalXP), nxtLv=getNextLevel(totalXP), lvPct=getLvPct(totalXP);
@@ -163,7 +163,9 @@ export default function App() {
     xbar:{height:7,backgroundColor:'rgba(255,255,255,0.07)',borderRadius:3,overflow:'hidden',marginBottom:6},
     xfil:{height:'100%',borderRadius:3},
     lrow:{flexDirection:'row',alignItems:'center',backgroundColor:'rgba(255,255,255,0.02)',borderLeftWidth:4,borderLeftColor:'rgba(255,255,255,0.05)',borderTopWidth:1,borderRightWidth:1,borderBottomWidth:1,borderTopColor:'rgba(255,255,255,0.05)',borderRightColor:'rgba(255,255,255,0.05)',borderBottomColor:'rgba(255,255,255,0.05)',borderRadius:8,padding:13,marginBottom:8},
-  });// GAME
+  });
+
+  // GAME
   if (screen==='game' && q) return (
     <View style={S.con}>
       <StatusBar barStyle="light-content" backgroundColor={BG}/>
@@ -220,11 +222,18 @@ export default function App() {
     return (
       <View style={[S.con,{justifyContent:'center',alignItems:'center',padding:20}]}>
         <StatusBar barStyle="light-content" backgroundColor={BG}/>
-        <Text style={{fontSize:64,marginBottom:8}}>BRAVO</Text>
+        <Text style={{fontSize:64,marginBottom:8}}>{grade.passed?'BRAVO':'COURAGE'}</Text>
         <Text style={[S.big,{textAlign:'center',fontSize:30,color:grade.color}]}>{grade.label}</Text>
         <View style={{width:60,height:4,backgroundColor:grade.color,marginVertical:16,borderRadius:2}}/>
+
+        {!grade.passed && (
+          <View style={{backgroundColor:'rgba(244,63,94,0.12)',borderLeftWidth:4,borderLeftColor:'#f43f5e',borderRadius:8,padding:14,marginBottom:16,width:'100%'}}>
+            <Text style={{fontSize:14,fontWeight:'900',color:'#f43f5e',textAlign:'center',letterSpacing:1}}>Il faut au moins 5 bonnes reponses pour passer au niveau suivant !</Text>
+          </View>
+        )}
+
         <View style={[S.sgrid,{width:'100%',marginBottom:16}]}>
-          {[['SCORE',score+' pts','#f59e0b'],['BONNES',correct+'/'+questions.length,grade.color],['SERIE MAX','x'+bestStreak,'#ef4444']].map(([lbl,val,c])=>(
+          {[['SCORE',score+' pts','#f59e0b'],['BONNES',correct+'/10',grade.color],['SERIE MAX','x'+bestStreak,'#ef4444']].map(([lbl,val,c])=>(
             <View key={lbl} style={[S.sbox,{borderBottomColor:c}]}>
               <Text style={{fontSize:18,fontWeight:'900',color:c}}>{val}</Text>
               <Text style={{fontSize:9,letterSpacing:1,marginTop:4,color:'#475569'}}>{lbl}</Text>
@@ -233,12 +242,12 @@ export default function App() {
         </View>
         <View style={[S.card,{borderLeftColor:ACCENT,width:'100%',flexDirection:'row',alignItems:'center',justifyContent:'center',marginBottom:20}]}>
           <Text style={{fontSize:12,fontWeight:'800',letterSpacing:2,color:'#94a3b8',marginRight:12}}>XP GAGNE</Text>
-          <Text style={{fontSize:28,fontWeight:'900',color:ACCENT}}>{sessionXP}</Text>
+          <Text style={{fontSize:28,fontWeight:'900',color:ACCENT}}>{grade.passed?sessionXP:0}</Text>
           <Text style={{fontSize:12,color:'#475569',marginLeft:12}}>total: {totalXP}</Text>
         </View>
         <View style={{flexDirection:'row',gap:10,width:'100%'}}>
           <TouchableOpacity style={[S.pbtn,{flex:2,marginBottom:0}]} onPress={startGame}>
-            <Text style={S.ptxt}>REJOUER</Text>
+            <Text style={S.ptxt}>{grade.passed?'NIVEAU SUIVANT':'RECOMMENCER'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[S.gbtn,{flex:1}]} onPress={()=>{setScreen('home');setTab('home');}}>
             <Text style={{fontSize:14,fontWeight:'900',letterSpacing:2,color:'#94a3b8'}}>HOME</Text>
@@ -289,7 +298,7 @@ export default function App() {
           <TouchableOpacity style={S.pbtn} onPress={startGame}>
             <Text style={S.ptxt}>JOUER MAINTENANT</Text>
           </TouchableOpacity>
-          {[['Solo','Joue seul et bats ton record'],['Tour par Tour','Joue a ton rythme'],['Soiree','Mode multijoueur festif']].map(([lbl,desc])=>(
+          {[['Solo','Joue seul et bats ton record'],['Tour par Tour','Joue a ton rythme']].map(([lbl,desc])=>(
             <TouchableOpacity key={lbl} style={S.mcard} onPress={startGame}>
               <View style={{flex:1}}>
                 <Text style={{fontSize:15,fontWeight:'800',letterSpacing:2,color:'#e2e8f0'}}>{lbl}</Text>
@@ -397,4 +406,4 @@ export default function App() {
       )}
     </View>
   );
-  }
+}
