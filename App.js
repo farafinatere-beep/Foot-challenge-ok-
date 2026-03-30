@@ -1,15 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Dimensions, TextInput } from 'react-native';
-import { Audio } from 'expo-av';
-
-const SOUNDS = {
-  correct: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3',
-  wrong:   'https://assets.mixkit.co/active_storage/sfx/2001/2001-preview.mp3',
-  tick:    'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
-  win:     'https://assets.mixkit.co/active_storage/sfx/1362/1362-preview.mp3',
-  lose:    'https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3',
-  music:   'https://assets.mixkit.co/active_storage/sfx/123/123-preview.mp3',
-};
 
 const ALL_QUESTIONS = [
   { q:"Combien de joueurs sur le terrain ?", options:["9","10","11","12"], answer:2, category:"Regles", level:1 },
@@ -84,8 +74,6 @@ function getLvPct(xp) { const c=getLevel(xp),n=getNextLevel(xp); if(c.level===n.
 export default function App() {
   const [screen, setScreen] = useState('home');
   const [tab, setTab] = useState('home');
-  const [soundOn, setSoundOn] = useState(true);
-  const [musicOn, setMusicOn] = useState(true);
   const [questions, setQuestions] = useState([]);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -114,53 +102,11 @@ export default function App() {
 
   const timerRef = useRef(null);
   const tptTimerRef = useRef(null);
-  const musicRef = useRef(null);
-  const soundOnRef = useRef(true);
-  const musicOnRef = useRef(true);
-
-  useEffect(() => { soundOnRef.current = soundOn; }, [soundOn]);
-  useEffect(() => { musicOnRef.current = musicOn; }, [musicOn]);
-
-  useEffect(() => {
-    let music;
-    async function playMusic() {
-      if (!musicOnRef.current) return;
-      try {
-        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: SOUNDS.music },
-          { isLooping: true, volume: 0.3 }
-        );
-        music = sound;
-        musicRef.current = sound;
-        await sound.playAsync();
-      } catch (e) {}
-    }
-    if (screen === 'game' || screen === 'tpt') playMusic();
-    return () => { if (music) music.unloadAsync(); };
-  }, [screen]);
-
-  useEffect(() => {
-    if (musicRef.current) {
-      if (musicOn) musicRef.current.playAsync().catch(()=>{});
-      else musicRef.current.pauseAsync().catch(()=>{});
-    }
-  }, [musicOn]);
-
-  async function playSound(type) {
-    if (!soundOnRef.current) return;
-    try {
-      const { sound } = await Audio.Sound.createAsync({ uri: SOUNDS[type] });
-      await sound.playAsync();
-      setTimeout(() => sound.unloadAsync(), 3000);
-    } catch (e) {}
-  }
 
   useEffect(() => {
     if (screen==='game' && !answered) {
       timerRef.current = setInterval(() => {
         setTimeLeft(t => {
-          if (t===4) playSound('tick');
           if (t<=1) { clearInterval(timerRef.current); doAnswer(-1); return 0; }
           return t-1;
         });
@@ -173,7 +119,6 @@ export default function App() {
     if (screen==='tpt' && !tptAnswered && !tptTransition) {
       tptTimerRef.current = setInterval(() => {
         setTptTimeLeft(t => {
-          if (t===4) playSound('tick');
           if (t<=1) { clearInterval(tptTimerRef.current); doTptAnswer(-1); return 0; }
           return t-1;
         });
@@ -207,19 +152,14 @@ export default function App() {
     const ok = idx===q.answer;
     let xpGain = 0;
     if (ok) {
-      playSound('correct');
       const pts = timeLeft>10?150:timeLeft>5?100:75;
       xpGain = Math.round(pts/3);
       setScore(s=>s+pts); setCorrect(c=>c+1); setSessionXP(x=>x+xpGain);
       const ns=streak+1; setStreak(ns); if(ns>bestStreak) setBestStreak(ns);
-    } else {
-      playSound('wrong');
-      setStreak(0);
-    }
+    } else setStreak(0);
     setTimeout(() => {
       if (current+1>=questions.length) {
         setTotalXP(p=>p+sessionXP+xpGain);
-        if ((correct+(ok?1:0))>=5) playSound('win'); else playSound('lose');
         setScreen('result');
       } else {
         setCurrent(c=>c+1); setSelected(null); setAnswered(false); setTimeLeft(15);
@@ -235,15 +175,14 @@ export default function App() {
     const q = qs[tptCurrent];
     const ok = idx===q.answer;
     if (ok) {
-      playSound('correct');
       const pts = tptTimeLeft>10?150:tptTimeLeft>5?100:75;
       if (tptPhase===1) { setTptScore1(s=>s+pts); setTptCorrect1(c=>c+1); }
       else { setTptScore2(s=>s+pts); setTptCorrect2(c=>c+1); }
-    } else playSound('wrong');
+    }
     setTimeout(() => {
       if (tptCurrent+1>=20) {
         if (tptPhase===1) setTptTransition(true);
-        else { playSound('win'); setScreen('tptresult'); }
+        else setScreen('tptresult');
       } else {
         setTptCurrent(c=>c+1);
         setTptSelected(null); setTptAnswered(false); setTptTimeLeft(15);
@@ -262,7 +201,7 @@ export default function App() {
     if(p>=0.9) return {label:'LEGENDAIRE',color:'#f59e0b',passed:true};
     if(p>=0.75) return {label:'EXPERT',color:'#10b981',passed:true};
     if(p>=0.5) return {label:'BON JOUEUR',color:'#3b82f6',passed:true};
-    return {label:'NIVEAU RATE - RECOMMENCE',color:'#f43f5e',passed:false};
+    return {label:'NIVEAU RATE',color:'#f43f5e',passed:false};
   }
 
   const curLv=getLevel(totalXP), nxtLv=getNextLevel(totalXP), lvPct=getLvPct(totalXP);
@@ -296,7 +235,6 @@ export default function App() {
     xfil:{height:'100%',borderRadius:3},
     lrow:{flexDirection:'row',alignItems:'center',backgroundColor:'rgba(255,255,255,0.02)',borderLeftWidth:4,borderLeftColor:'rgba(255,255,255,0.05)',borderTopWidth:1,borderRightWidth:1,borderBottomWidth:1,borderTopColor:'rgba(255,255,255,0.05)',borderRightColor:'rgba(255,255,255,0.05)',borderBottomColor:'rgba(255,255,255,0.05)',borderRadius:8,padding:13,marginBottom:8},
     input:{backgroundColor:'rgba(255,255,255,0.06)',borderRadius:8,padding:14,color:'#fff',fontSize:16,fontWeight:'700',marginBottom:12,borderWidth:1,borderColor:'rgba(255,255,255,0.15)'},
-    toggleRow:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',backgroundColor:'rgba(255,255,255,0.03)',borderRadius:10,padding:14,marginBottom:8},
   });
 
   if (screen==='tptsetup') return (
@@ -317,4 +255,34 @@ export default function App() {
     </View>
   );
 
-    
+  if (screen==='tpt' && tptTransition) return (
+    <View style={[S.con,{justifyContent:'center',alignItems:'center',padding:20}]}>
+      <StatusBar barStyle="light-content" backgroundColor={BG}/>
+      <Text style={{fontSize:60,marginBottom:16}}>BRAVO</Text>
+      <Text style={[S.big,{textAlign:'center',color:ACCENT,fontSize:28}]}>{player1Name} a termine !</Text>
+      <View style={[S.card,{borderLeftColor:ACCENT,width:'100%',marginTop:20,marginBottom:20}]}>
+        <Text style={{fontSize:13,color:'#475569',letterSpacing:2,marginBottom:8}}>SCORE {player1Name.toUpperCase()}</Text>
+        <Text style={{fontSize:36,fontWeight:'900',color:ACCENT}}>{tptScore1} pts</Text>
+        <Text style={{fontSize:14,color:'#94a3b8',marginTop:4}}>{tptCorrect1} / 20 bonnes reponses</Text>
+      </View>
+      <Text style={{fontSize:16,fontWeight:'800',color:'#e2e8f0',marginBottom:20,textAlign:'center'}}>Passe le telephone a {player2Name} !</Text>
+      <TouchableOpacity style={[S.pbtn,{width:'100%'}]} onPress={startPhase2}>
+        <Text style={S.ptxt}>A TOI {player2Name.toUpperCase()}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  if (screen==='tpt' && tptQ && !tptTransition) return (
+    <View style={S.con}>
+      <StatusBar barStyle="light-content" backgroundColor={BG}/>
+      <ScrollView style={{flex:1,padding:16,paddingTop:44}}>
+        <View style={{backgroundColor:tptPhase===1?'rgba(245,158,11,0.12)':'rgba(59,130,246,0.12)',borderRadius:8,padding:10,marginBottom:12,flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+          <Text style={{fontSize:14,fontWeight:'900',color:tptPhase===1?ACCENT:'#3b82f6',letterSpacing:2}}>{tptPhase===1?player1Name:player2Name}</Text>
+          <Text style={{fontSize:14,fontWeight:'900',color:tptPhase===1?ACCENT:'#3b82f6'}}>{tptPhase===1?tptScore1:tptScore2} pts</Text>
+        </View>
+        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <TouchableOpacity onPress={()=>setScreen('home')}><Text style={{color:'#475569',fontWeight:'800',fontSize:12}}>QUITTER</Text></TouchableOpacity>
+          <View style={{backgroundColor:'rgba(255,255,255,0.07)',borderRadius:6,paddingHorizontal:10,paddingVertical:3}}>
+            <Text style={{fontSize:11,fontWeight:'800',color:'#94a3b8'}}>{tptQ.category}</Text>
+          </View>
+          <Text s
