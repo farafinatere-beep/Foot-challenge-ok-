@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Dimensions, TextInput } from 'react-native';
 import { Audio } from 'expo-av';
 
-const { width } = Dimensions.get('window');
-
 const SOUNDS = {
   correct: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3',
   wrong:   'https://assets.mixkit.co/active_storage/sfx/2001/2001-preview.mp3',
@@ -301,7 +299,6 @@ export default function App() {
     toggleRow:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',backgroundColor:'rgba(255,255,255,0.03)',borderRadius:10,padding:14,marginBottom:8},
   });
 
-  // SETUP TPT
   if (screen==='tptsetup') return (
     <View style={[S.con,{padding:20,justifyContent:'center'}]}>
       <StatusBar barStyle="light-content" backgroundColor={BG}/>
@@ -315,4 +312,9 @@ export default function App() {
         <Text style={S.ptxt}>LANCER LE DUEL</Text>
       </TouchableOpacity>
       <TouchableOpacity style={S.gbtn} onPress={()=>setScreen('home')}>
-        <Text style={{fontSize:14,fontWeight:'900',color:'#94a3b8',letterSpacing:2}
+        <Text style={{fontSize:14,fontWeight:'900',color:'#94a3b8',letterSpacing:2}}>RETOUR</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+    
