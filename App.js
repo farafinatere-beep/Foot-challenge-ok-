@@ -1,220 +1,100 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Dimensions, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, TextInput } from 'react-native';
 
 const ALL_QUESTIONS = [
-  { q:"Combien de joueurs sur le terrain ?", options:["9","10","11","12"], answer:2, category:"Regles", level:1 },
-  { q:"Duree d un match reglementaire ?", options:["80 min","85 min","90 min","95 min"], answer:2, category:"Regles", level:1 },
-  { q:"Cartons jaunes pour expulsion ?", options:["1","2","3","4"], answer:1, category:"Regles", level:1 },
-  { q:"Distance d un penalty ?", options:["9m","11m","13m","16m"], answer:1, category:"Regles", level:1 },
-  { q:"Vainqueur Coupe du Monde 2022 ?", options:["France","Bresil","Argentine","Allemagne"], answer:2, category:"Mondial", level:1 },
-  { q:"Pays avec le plus de Coupes du Monde ?", options:["Allemagne","Italie","Argentine","Bresil"], answer:3, category:"Mondial", level:1 },
-  { q:"Club le plus titre en Champions League ?", options:["Barca","Bayern","Real Madrid","Man United"], answer:2, category:"Champions", level:1 },
-  { q:"Surnom de Messi ?", options:["El Loco","La Pulga","CR7","El Pibe"], answer:1, category:"Legendes", level:1 },
-  { q:"Pays du FC Barcelone ?", options:["Portugal","Italie","France","Espagne"], answer:3, category:"Clubs", level:1 },
-  { q:"Surnom de Liverpool ?", options:["The Blues","The Reds","The Gunners","The Citizens"], answer:1, category:"Clubs", level:1 },
-  { q:"Vainqueur Euro 2024 ?", options:["France","Espagne","Angleterre","Allemagne"], answer:1, category:"Euro", level:1 },
-  { q:"Meilleur buteur en Champions League ?", options:["Messi","Cristiano Ronaldo","Raul","Lewandowski"], answer:1, category:"Champions", level:1 },
-  { q:"Quel pays a remporte la CAN 2023 ?", options:["Maroc","Nigeria","Cote d Ivoire","Senegal"], answer:2, category:"CAN", level:1 },
-  { q:"Vainqueur Champions League 2024 ?", options:["Man City","Bayern","Real Madrid","Arsenal"], answer:2, category:"Champions", level:1 },
-  { q:"Surnom de Cristiano Ronaldo ?", options:["CR9","CR7","CR8","CR10"], answer:1, category:"Legendes", level:1 },
-  { q:"1ere Coupe du Monde de la France ?", options:["1994","1996","1998","2000"], answer:2, category:"Mondial", level:2 },
-  { q:"But de la Main de Dieu en 1986 ?", options:["Pele","Zidane","Maradona","Ronaldo"], answer:2, category:"Mondial", level:2 },
-  { q:"Meilleur buteur de l histoire du Mondial ?", options:["Ronaldo","Klose","Pele","Fontaine"], answer:1, category:"Mondial", level:2 },
-  { q:"Record de Ballons d Or ?", options:["Cristiano Ronaldo","Lionel Messi","Zidane","Ronaldinho"], answer:1, category:"Legendes", level:2 },
-  { q:"Ballon d Or 2023 ?", options:["Mbappe","Haaland","Messi","Vinicius"], answer:2, category:"Legendes", level:2 },
-  { q:"Surnom de la Juventus ?", options:["Real","AC Milan","La Vieille Dame","Inter"], answer:2, category:"Clubs", level:2 },
-  { q:"Quel pays a remporte la CAN 2021 ?", options:["Ghana","Nigeria","Senegal","Cameroun"], answer:2, category:"CAN", level:2 },
-  { q:"Entraineur de Man City lors de la CL 2023 ?", options:["Mourinho","Klopp","Guardiola","Ancelotti"], answer:2, category:"Entraineurs", level:2 },
-  { q:"Organisateur du Mondial 2026 ?", options:["Espagne","USA Canada Mexique","Arabie Saoudite","Australie"], answer:1, category:"Mondial", level:3 },
-  { q:"Combien de CL pour le Real Madrid ?", options:["12","13","14","15"], answer:3, category:"Champions", level:3 },
-  { q:"Quel pays a organise la 1ere Coupe du Monde ?", options:["Bresil","France","Uruguay","Argentine"], answer:2, category:"Mondial", level:3 },
-  { q:"Pele a joue pour quel club bresilien ?", options:["Flamengo","Santos","Corinthians","Sao Paulo"], answer:1, category:"Legendes", level:3 },
-  { q:"Entraineur ayant gagne 3 CL de suite avec le Real ?", options:["Mourinho","Del Bosque","Ancelotti","Zidane"], answer:3, category:"Entraineurs", level:3 },
-  { q:"Quel pays a remporte le plus d Euros ?", options:["France","Allemagne","Espagne","Italie"], answer:2, category:"Euro", level:3 },
-  { q:"Meilleur buteur de l histoire de la Serie A ?", options:["Totti","Del Piero","Nordahl","Piola"], answer:3, category:"Records", level:3 },
-  { q:"Auteur du but le plus rapide en Mondial ?", options:["Hakan Sukur","Maradona","Pele","Ronaldo"], answer:0, category:"Records", level:3 },
-  { q:"Quel pays a remporte la CAN le plus de fois ?", options:["Nigeria","Ghana","Egypte","Cameroun"], answer:2, category:"CAN", level:3 },
-  { q:"Gardien vainqueur CL avec Liverpool en 2019 ?", options:["De Gea","Alisson","Ederson","Mendy"], answer:1, category:"Gardiens", level:3 },
-  { q:"Entraineur avec le plus de titres en Premier League ?", options:["Wenger","Mourinho","Ferguson","Guardiola"], answer:2, category:"Entraineurs", level:3 },
-  { q:"Quel pays a remporte la Copa America 2021 ?", options:["Bresil","Argentine","Uruguay","Colombie"], answer:1, category:"Copa America", level:4 },
-  { q:"Entraineur vainqueur CL avec Porto en 2004 ?", options:["Guardiola","Mourinho","Ancelotti","Ferguson"], answer:1, category:"Entraineurs", level:4 },
-  { q:"Joueur avec le plus de passes decisives en CL ?", options:["Messi","Ronaldo","Benzema","Xavi"], answer:0, category:"Champions", level:4 },
-  { q:"Ballon d Or Feminin 2023 ?", options:["Sam Kerr","Aitana Bonmati","Ada Hegerberg","Alexia Putellas"], answer:1, category:"Foot Feminin", level:4 },
-  { q:"Club avec le plus de titres en Liga ?", options:["Barca","Atletico","Real Madrid","Valencia"], answer:2, category:"Championnats", level:4 },
-  { q:"Entraineur vainqueur CL avec 3 clubs differents ?", options:["Mourinho","Guardiola","Ancelotti","Heynckes"], answer:2, category:"Entraineurs", level:4 },
-  { q:"Record de buts en Liga en une saison ?", options:["48","50","55","60"], answer:1, category:"Records", level:5 },
-  { q:"Inventeur du Gegenpressing ?", options:["Guardiola","Klopp","Tuchel","Nagelsmann"], answer:1, category:"Entraineurs", level:5 },
-  { q:"Gardien surnomme La Arana Negra ?", options:["Buffon","Casillas","Lev Yachine","Dida"], answer:2, category:"Gardiens", level:5 },
-  { q:"Joueur vainqueur CL avec 5 clubs differents ?", options:["Ronaldo","Seedorf","Costacurta","Cafu"], answer:1, category:"Champions", level:5 },
-  { q:"Meilleur buteur de l histoire de la Bundesliga ?", options:["Gerd Muller","Lewandowski","Rummenigge","Klose"], answer:0, category:"Records", level:5 },
-  { q:"Annee des 13 buts de Just Fontaine en Mondial ?", options:["1954","1958","1962","1966"], answer:1, category:"Records", level:6 },
-  { q:"Annee de la defaite 7-1 du Bresil face a l Allemagne ?", options:["2010","2012","2014","2016"], answer:2, category:"Mondial", level:6 },
-  { q:"Seul pays present a tous les Mondiaux ?", options:["Bresil","Allemagne","Argentine","Italie"], answer:0, category:"Mondial", level:6 },
-  { q:"Entraineur ayant gagne 3 CL consecutives ?", options:["Ferguson","Guardiola","Zidane","Ancelotti"], answer:2, category:"Entraineurs", level:6 },
-  { q:"Record de selections en Coupe du Monde ?", options:["Messi","Ronaldo","Lothar Matthaus","Pele"], answer:2, category:"Records", level:6 },
+  { q:"Combien de joueurs sur le terrain ?", options:["9","10","11","12"], answer:2 },
+  { q:"Duree d un match reglementaire ?", options:["80 min","85 min","90 min","95 min"], answer:2 },
+  { q:"Cartons jaunes pour expulsion ?", options:["1","2","3","4"], answer:1 },
+  { q:"Distance d un penalty ?", options:["9m","11m","13m","16m"], answer:1 },
+  { q:"Vainqueur Coupe du Monde 2022 ?", options:["France","Bresil","Argentine","Allemagne"], answer:2 },
+  { q:"Pays avec le plus de Coupes du Monde ?", options:["Allemagne","Italie","Argentine","Bresil"], answer:3 },
+  { q:"Club le plus titre en Champions League ?", options:["Barca","Bayern","Real Madrid","Man United"], answer:2 },
+  { q:"Surnom de Messi ?", options:["El Loco","La Pulga","CR7","El Pibe"], answer:1 },
+  { q:"Pays du FC Barcelone ?", options:["Portugal","Italie","France","Espagne"], answer:3 },
+  { q:"Surnom de Liverpool ?", options:["The Blues","The Reds","The Gunners","The Citizens"], answer:1 },
+  { q:"Vainqueur Euro 2024 ?", options:["France","Espagne","Angleterre","Allemagne"], answer:1 },
+  { q:"Meilleur buteur en CL ?", options:["Messi","C. Ronaldo","Raul","Lewandowski"], answer:1 },
+  { q:"Pays vainqueur CAN 2023 ?", options:["Maroc","Nigeria","Cote d Ivoire","Senegal"], answer:2 },
+  { q:"Ballon d Or 2023 ?", options:["Mbappe","Haaland","Messi","Vinicius"], answer:2 },
+  { q:"Surnom de la Juventus ?", options:["Real","AC Milan","La Vieille Dame","Inter"], answer:2 },
+  { q:"Vainqueur Mondial 1998 ?", options:["Bresil","Italie","France","Croatie"], answer:2 },
+  { q:"Club de Kylian Mbappe en 2024 ?", options:["PSG","Real Madrid","Monaco","Liverpool"], answer:1 },
+  { q:"Pays de Erling Haaland ?", options:["Suede","Norvege","Danemark","Islande"], answer:1 },
+  { q:"Stade du Real Madrid ?", options:["Camp Nou","Bernabeu","San Siro","Anfield"], answer:1 },
+  { q:"Duree d une prolongation ?", options:["2x10 min","2x15 min","2x20 min","1x30 min"], answer:1 }
 ];
 
-const LEVELS = [
-  { level:1, name:"Novice", minXP:0, color:"#64748b" },
-  { level:2, name:"Amateur", minXP:200, color:"#10b981" },
-  { level:3, name:"Semi-Pro", minXP:500, color:"#3b82f6" },
-  { level:4, name:"Pro", minXP:1000, color:"#8b5cf6" },
-  { level:5, name:"Expert", minXP:2000, color:"#f59e0b" },
-  { level:6, name:"Legende", minXP:4000, color:"#ef4444" },
-];
-
-const ACCENT = '#f59e0b';
-const BG = '#06080f';
-
-function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
-function getLevel(xp) { for (let i=LEVELS.length-1;i>=0;i--) { if(xp>=LEVELS[i].minXP) return LEVELS[i]; } return LEVELS[0]; }
-function getNextLevel(xp) { const c=getLevel(xp); return LEVELS.find(l=>l.level===c.level+1)||c; }
-function getLvPct(xp) { const c=getLevel(xp),n=getNextLevel(xp); if(c.level===n.level) return 100; return Math.round(((xp-c.minXP)/(n.minXP-c.minXP))*100); }
+const LVS = ["Amateur 1","Amateur 2","Espoir 1","Espoir 2","Pro 1","Pro 2","Expert 1","Expert 2","Maitre","Legende"];
+const ACCENT = '#f59e0b', BG = '#06080f';
 
 export default function App() {
   const [screen, setScreen] = useState('home');
   const [tab, setTab] = useState('home');
-  const [questions, setQuestions] = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [answered, setAnswered] = useState(false);
+  const [qs, setQs] = useState([]);
+  const [cur, setCur] = useState(0);
+  const [sel, setSel] = useState(null);
+  const [ans, setAns] = useState(false);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(15);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
+  const [timer, setTimer] = useState(10);
   const [correct, setCorrect] = useState(0);
-  const [totalXP, setTotalXP] = useState(350);
-  const [sessionXP, setSessionXP] = useState(0);
-  const [player1Name, setPlayer1Name] = useState('Joueur 1');
-  const [player2Name, setPlayer2Name] = useState('Joueur 2');
-  const [tptPhase, setTptPhase] = useState(1);
-  const [tptQuestions1, setTptQuestions1] = useState([]);
-  const [tptQuestions2, setTptQuestions2] = useState([]);
-  const [tptCurrent, setTptCurrent] = useState(0);
-  const [tptScore1, setTptScore1] = useState(0);
-  const [tptScore2, setTptScore2] = useState(0);
-  const [tptCorrect1, setTptCorrect1] = useState(0);
-  const [tptCorrect2, setTptCorrect2] = useState(0);
-  const [tptSelected, setTptSelected] = useState(null);
-  const [tptAnswered, setTptAnswered] = useState(false);
-  const [tptTimeLeft, setTptTimeLeft] = useState(15);
-  const [tptTransition, setTptTransition] = useState(false);
-  const timerRef = useRef(null);
-  const tptTimerRef = useRef(null);
+  const [lvIdx, setLvIdx] = useState(0);
+  const [p1, setP1] = useState('Joueur 1');
+  const [p2, setP2] = useState('Joueur 2');
+  const [duelP, setDuelP] = useState(1);
+  const [s1, setS1] = useState(0);
+  const [s2, setS2] = useState(0);
+  const tRef = useRef(null);
 
   useEffect(() => {
-    if (screen==='game' && !answered) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(t => {
-          if (t<=1) { clearInterval(timerRef.current); doAnswer(-1); return 0; }
-          return t-1;
-        });
+    if ((screen==='game' || screen==='duel') && !ans) {
+      tRef.current = setInterval(() => {
+        setTimer(t => { if (t<=1) { clearInterval(tRef.current); handleAns(-1); return 0; } return t-1; });
       }, 1000);
     }
-    return () => clearInterval(timerRef.current);
-  }, [screen, current, answered]);
+    return () => clearInterval(tRef.current);
+  }, [screen, cur, ans, duelP]);
 
-  useEffect(() => {
-    if (screen==='tpt' && !tptAnswered && !tptTransition) {
-      tptTimerRef.current = setInterval(() => {
-        setTptTimeLeft(t => {
-          if (t<=1) { clearInterval(tptTimerRef.current); doTptAnswer(-1); return 0; }
-          return t-1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(tptTimerRef.current);
-  }, [screen, tptCurrent, tptAnswered, tptPhase, tptTransition]);
+  const startMode = (m) => {
+    const fresh = [...ALL_QUESTIONS].sort(()=>Math.random()-0.5).slice(0,10);
+    setQs(fresh); setCur(0); setScore(0); setCorrect(0); setAns(false); setTimer(10); setSel(null);
+    if(m==='duel'){ setS1(0); setS2(0); setDuelP(1); }
+    setScreen(m);
+  };
 
-  function startGame() {
-    setQuestions(shuffle(ALL_QUESTIONS).slice(0,10));
-    setCurrent(0); setScore(0); setStreak(0); setBestStreak(0);
-    setSelected(null); setAnswered(false); setTimeLeft(15);
-    setCorrect(0); setSessionXP(0); setScreen('game');
-  }
-
-  function startTpt() {
-    setTptQuestions1(shuffle(ALL_QUESTIONS).slice(0,20));
-    setTptQuestions2(shuffle(ALL_QUESTIONS).slice(0,20));
-    setTptCurrent(0); setTptScore1(0); setTptScore2(0);
-    setTptCorrect1(0); setTptCorrect2(0);
-    setTptSelected(null); setTptAnswered(false); setTptTimeLeft(15);
-    setTptPhase(1); setTptTransition(false);
-    setScreen('tpt');
-  }
-
-  function doAnswer(idx) {
-    if (answered) return;
-    clearInterval(timerRef.current);
-    setSelected(idx); setAnswered(true);
-    const q = questions[current];
-    const ok = idx===q.answer;
-    let xpGain = 0;
-    if (ok) {
-      const pts = timeLeft>10?150:timeLeft>5?100:75;
-      xpGain = Math.round(pts/3);
-      setScore(s=>s+pts); setCorrect(c=>c+1); setSessionXP(x=>x+xpGain);
-      const ns=streak+1; setStreak(ns); if(ns>bestStreak) setBestStreak(ns);
-    } else setStreak(0);
-    setTimeout(() => {
-      if (current+1>=questions.length) { setTotalXP(p=>p+sessionXP+xpGain); setScreen('result'); }
-      else { setCurrent(c=>c+1); setSelected(null); setAnswered(false); setTimeLeft(15); }
-    }, 1200);
-  }
-
-  function doTptAnswer(idx) {
-    if (tptAnswered) return;
-    clearInterval(tptTimerRef.current);
-    setTptSelected(idx); setTptAnswered(true);
-    const qs = tptPhase===1 ? tptQuestions1 : tptQuestions2;
-    const q = qs[tptCurrent];
-    const ok = idx===q.answer;
-    if (ok) {
-      const pts = tptTimeLeft>10?150:tptTimeLeft>5?100:75;
-      if (tptPhase===1) { setTptScore1(s=>s+pts); setTptCorrect1(c=>c+1); }
-      else { setTptScore2(s=>s+pts); setTptCorrect2(c=>c+1); }
+  const handleAns = (i) => {
+    if (ans) return;
+    clearInterval(tRef.current); setSel(i); setAns(true);
+    const isOk = i === qs[cur].answer;
+    if (isOk) {
+      const pts = timer * 10;
+      if (screen==='duel') { duelP===1 ? setS1(s=>s+pts) : setS2(s=>s+pts); }
+      else { setScore(s=>s+pts); setCorrect(c=>c+1); }
     }
     setTimeout(() => {
-      if (tptCurrent+1>=20) {
-        if (tptPhase===1) setTptTransition(true);
-        else setScreen('tptresult');
-      } else {
-        setTptCurrent(c=>c+1);
-        setTptSelected(null); setTptAnswered(false); setTptTimeLeft(15);
+      if (cur < 9) { setCur(c=>c+1); setAns(false); setTimer(10); setSel(null); }
+      else {
+        if (screen==='duel' && duelP===1) {
+          setDuelP(2); setCur(0); setAns(false); setTimer(10); setSel(null);
+          setQs([...ALL_QUESTIONS].sort(()=>Math.random()-0.5).slice(0,10));
+        } else {
+          if (screen==='game' && correct >= 4 && isOk && lvIdx < 9) setLvIdx(l=>l+1);
+          setScreen(screen==='duel'?'duelRes':'result');
+        }
       }
-    }, 1200);
-  }
-
-  function startPhase2() {
-    setTptPhase(2); setTptCurrent(0);
-    setTptSelected(null); setTptAnswered(false); setTptTimeLeft(15);
-    setTptTransition(false);
-  }
-
-  const curLv=getLevel(totalXP), nxtLv=getNextLevel(totalXP), lvPct=getLvPct(totalXP);
-  const q=questions[current];
-  const tptQ=tptPhase===1?tptQuestions1[tptCurrent]:tptQuestions2[tptCurrent];
-
-  const LEADERBOARD=[
-    {name:'KingFoot',xp:4820},{name:'GoalMachine',xp:3650},
-    {name:'UltraFan',xp:2900},{name:'FootballGod',xp:2100},
-    {name:'Vous',xp:totalXP,isMe:true},
-  ].sort((a,b)=>b.xp-a.xp);
+    }, 1000);
+  };
 
   const S = StyleSheet.create({
     con:{flex:1,backgroundColor:BG},
-    scr:{flex:1,padding:16},
-    big:{fontSize:40,color:'#fff',fontWeight:'900',fontStyle:'italic'},
-    card:{backgroundColor:'rgba(255,255,255,0.04)',borderRadius:10,padding:16,marginBottom:12},
-    pbtn:{backgroundColor:ACCENT,borderRadius:8,padding:18,alignItems:'center',marginBottom:12},
-    ptxt:{fontSize:19,fontWeight:'900',letterSpacing:4,color:'#000'},
-    input:{backgroundColor:'rgba(255,255,255,0.06)',borderRadius:8,padding:14,color:'#fff',fontSize:16,fontWeight:'700',marginBottom:12},
-    tabs:{flexDirection:'row',borderBottomWidth:1,borderBottomColor:'rgba(255,255,255,0.07)',backgroundColor:BG,paddingTop:32},
-    tbtn:{flex:1,alignItems:'center',paddingVertical:10},
-    ttxt:{fontSize:11,letterSpacing:2,fontWeight:'700'},
-    xbar:{height:7,backgroundColor:'rgba(255,255,255,0.07)',borderRadius:3,overflow:'hidden',marginBottom:6},
-    xfil:{height:'100%',borderRadius:3},
-    lrow:{flexDirection:'row',alignItems:'center',backgroundColor:'rgba(255,255,255,0.02)',borderRadius:8,padding:13,marginBottom:8},
+    scr:{flex:1,padding:20,paddingTop:50},
+    big:{fontSize:28,color:'#fff',fontWeight:'900',fontStyle:'italic',marginBottom:20},
+    card:{backgroundColor:'rgba(255,255,255,0.05)',borderRadius:12,padding:20,marginBottom:15},
+    btn:{backgroundColor:ACCENT,borderRadius:10,padding:18,alignItems:'center',marginBottom:10},
+    txt:{fontSize:16,fontWeight:'bold',color:'#000'},
+    q:{fontSize:20,color:'#fff',fontWeight:'800',textAlign:'center',marginVertical:30},
+    opt:{width:'100%',padding:16,borderRadius:10,backgroundColor:'rgba(255,255,255,0.07)',marginBottom:10,borderWidth:1},
+    tabB:{flexDirection:'row',marginBottom:20},
+    tbtn:{flex:1,alignItems:'center',padding:10,borderBottomWidth:2}
   });
 
   return (
@@ -222,55 +102,60 @@ export default function App() {
       <StatusBar barStyle="light-content" />
       {screen === 'home' && (
         <View style={S.scr}>
-          <View style={S.tabs}>
-            <TouchableOpacity style={S.tbtn} onPress={() => setTab('home')}><Text style={[S.ttxt, {color: tab==='home'?ACCENT:'#475569'}]}>ACCUEIL</Text></TouchableOpacity>
-            <TouchableOpacity style={S.tbtn} onPress={() => setTab('leaderboard')}><Text style={[S.ttxt, {color: tab==='leaderboard'?ACCENT:'#475569'}]}>CLASSEMENT</Text></TouchableOpacity>
-            <TouchableOpacity style={S.tbtn} onPress={() => setTab('profile')}><Text style={[S.ttxt, {color: tab==='profile'?ACCENT:'#475569'}]}>PROFIL</Text></TouchableOpacity>
+          <View style={S.tabB}>
+            <TouchableOpacity style={[S.tbtn,{borderBottomColor:tab==='home'?ACCENT:'transparent'}]} onPress={()=>setTab('home')}><Text style={{color:'#fff'}}>JEU</Text></TouchableOpacity>
+            <TouchableOpacity style={[S.tbtn,{borderBottomColor:tab:'prof'?ACCENT:'transparent'}]} onPress={()=>setTab('prof')}><Text style={{color:'#fff'}}>PROFIL</Text></TouchableOpacity>
           </View>
-          
-          <ScrollView style={{marginTop: 20}}>
-            {tab === 'home' && (
-              <View>
-                <Text style={S.big}>FOOT CHALLENGE</Text>
-                <TouchableOpacity style={S.pbtn} onPress={startGame}><Text style={S.ptxt}>JOUER MAINTENANT</Text></TouchableOpacity>
-                <TouchableOpacity style={[S.pbtn, {backgroundColor: '#3b82f6'}]} onPress={() => setScreen('tptsetup')}><Text style={S.ptxt}>MODE DUEL</Text></TouchableOpacity>
-              </View>
-            )}
-
-            {tab === 'leaderboard' && (
-              <View>
-                <Text style={[S.big, {fontSize: 24}]}>TOP PLAYERS</Text>
-                {LEADERBOARD.map((p, i) => (
-                  <View key={i} style={[S.lrow, p.isMe && {borderColor: ACCENT, borderWidth: 1}]}>
-                    <Text style={{color: '#fff', width: 30}}>{i+1}.</Text>
-                    <Text style={{color: '#fff', flex: 1}}>{p.name}</Text>
-                    <Text style={{color: ACCENT}}>{p.xp} XP</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            {tab === 'profile' && (
-              <View style={S.card}>
-                <Text style={{color: '#fff', fontSize: 20}}>{curLv.name}</Text>
-                <View style={S.xbar}><View style={[S.xfil, {width: `${lvPct}%`, backgroundColor: curLv.color}]} /></View>
-                <Text style={{color: '#475569'}}>{totalXP} XP Total</Text>
-              </View>
-            )}
-          </ScrollView>
+          {tab==='home'?(
+            <View>
+              <Text style={S.big}>FOOT CHALLENGE</Text>
+              <TouchableOpacity style={S.btn} onPress={()=>startMode('game')}><Text style={S.txt}>SOLO (NIVEAU {lvIdx+1})</Text></TouchableOpacity>
+              <TouchableOpacity style={[S.btn,{backgroundColor:'#3b82f6'}]} onPress={()=>setScreen('setup')}><Text style={S.txt}>MODE DUEL</Text></TouchableOpacity>
+            </View>
+          ):(
+            <ScrollView>
+              <View style={S.card}><Text style={{color:ACCENT,fontWeight:'900'}}>RANG: {LVS[lvIdx]}</Text><Text style={{color:'#94a3b8'}}>Niveau {lvIdx+1}/10</Text></View>
+              <View style={S.card}><Text style={{color:'#fff',fontWeight:'bold'}}>INFOS</Text><Text style={{color:'#94a3b8'}}>Le Big Bamba - Côte d'Ivoire{"\n"}farafinatere@gmail.com</Text></View>
+            </ScrollView>
+          )}
         </View>
       )}
-
-      {screen === 'tptsetup' && (
-        <View style={[S.scr, {justifyContent: 'center'}]}>
-          <TextInput style={S.input} value={player1Name} onChangeText={setPlayer1Name} placeholder="Nom Joueur 1" />
-          <TextInput style={S.input} value={player2Name} onChangeText={setPlayer2Name} placeholder="Nom Joueur 2" />
-          <TouchableOpacity style={S.pbtn} onPress={startTpt}><Text style={S.ptxt}>LANCER</Text></TouchableOpacity>
+      {screen==='setup' && (
+        <View style={[S.scr,{justifyContent:'center'}]}>
+          <TextInput style={[S.card,{color:'#fff'}]} placeholder="Nom Joueur 1" placeholderTextColor="#666" onChangeText={setP1} />
+          <TextInput style={[S.card,{color:'#fff'}]} placeholder="Nom Joueur 2" placeholderTextColor="#666" onChangeText={setP2} />
+          <TouchableOpacity style={S.btn} onPress={()=>startMode('duel')}><Text style={S.txt}>LANCER LE DUEL</Text></TouchableOpacity>
         </View>
       )}
-      
-      {/* Reste du code géré par les fonctions de switch d'écran */}
+      {(screen==='game' || screen==='duel') && qs[cur] && (
+        <View style={S.scr}>
+          <Text style={{color:ACCENT,textAlign:'center',fontSize:24,fontWeight:'900'}}>{timer}s</Text>
+          {screen==='duel' && <Text style={{color:'#fff',textAlign:'center'}}>Tour de : {duelP===1?p1:p2}</Text>}
+          <Text style={{color:'#666',textAlign:'center'}}>Question {cur+1}/10</Text>
+          <Text style={S.q}>{qs[cur].q}</Text>
+          {qs[cur].options.map((o,i)=>(
+            <TouchableOpacity key={i} style={[S.opt,{borderColor:ans?i===qs[cur].answer?'#10b981':i===sel?'#ef4444':'transparent':'transparent'}]} onPress={()=>handleAns(i)}>
+              <Text style={{color:'#fff',textAlign:'center'}}>{o}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+      {screen==='result' && (
+        <View style={[S.scr,{justifyContent:'center'}]}>
+          <Text style={S.big}>{correct>=5?'NIVEAU REUSSI !':'ECHEC...'}</Text>
+          <Text style={{color:'#fff',fontSize:18}}>Bonnes réponses : {correct}/10</Text>
+          <Text style={{color:ACCENT}}>Score : {score} pts</Text>
+          <TouchableOpacity style={[S.btn,{marginTop:20}]} onPress={()=>setScreen('home')}><Text style={S.txt}>RETOUR</Text></TouchableOpacity>
+        </View>
+      )}
+      {screen==='duelRes' && (
+        <View style={[S.scr,{justifyContent:'center'}]}>
+          <Text style={S.big}>RESULTAT DUEL</Text>
+          <View style={S.card}><Text style={{color:'#fff'}}>{p1} : {s1} pts</Text><Text style={{color:'#fff'}}>{p2} : {s2} pts</Text></View>
+          <Text style={{color:ACCENT,fontSize:22,textAlign:'center',fontWeight:'900'}}>{s1>s2?p1:s2>s1?p2:'EGALITE'} GAGNE !</Text>
+          <TouchableOpacity style={[S.btn,{marginTop:20}]} onPress={()=>setScreen('home')}><Text style={S.txt}>RETOUR</Text></TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
-  
