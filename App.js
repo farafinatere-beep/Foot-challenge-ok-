@@ -230,7 +230,8 @@ export default function App() {
     xfil:{height:'100%',borderRadius:3},
     lrow:{flexDirection:'row',alignItems:'center',backgroundColor:'rgba(255,255,255,0.02)',borderLeftWidth:4,borderLeftColor:'rgba(255,255,255,0.05)',borderTopWidth:1,borderRightWidth:1,borderBottomWidth:1,borderTopColor:'rgba(255,255,255,0.05)',borderRightColor:'rgba(255,255,255,0.05)',borderBottomColor:'rgba(255,255,255,0.05)',borderRadius:8,padding:13,marginBottom:8},
     input:{backgroundColor:'rgba(255,255,255,0.06)',borderRadius:8,padding:14,color:'#fff',fontSize:16,fontWeight:'700',marginBottom:12,borderWidth:1,borderColor:'rgba(255,255,255,0.15)'},
-  });if (screen==='tptsetup') return (
+  });
+  if (screen==='tptsetup') return (
     <View style={[S.con,{padding:20,justifyContent:'center'}]}>
       <StatusBar barStyle="light-content" backgroundColor={BG}/>
       <Text style={[S.big,{textAlign:'center',marginBottom:6}]}>TOUR PAR TOUR</Text>
