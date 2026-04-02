@@ -400,7 +400,8 @@ export default function App() {
       </ScrollView>
     </View>
   );
-if (screen==='result') {
+
+  if (screen==='result') {
     const grade=getGrade();
     return (
       <View style={[S.con,{justifyContent:'center',alignItems:'center',padding:20}]}>
